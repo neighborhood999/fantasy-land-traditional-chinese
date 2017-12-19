@@ -64,3 +64,82 @@ traverse :: Applicative f, Traversable t => t a ~> (TypeRep f, a -> f b) -> f (t
 ---
 
 更多資訊，請參考 Sanctuary 文件的 [Type](https://sanctuary.js.org/#types) 部分。[↩️](https://github.com/fantasyland/fantasy-land#sanctuary-types-return)
+
+## 前綴方法名稱
+
+為了讓 data type 可以兼容 Fantasy Land，其值必須具有某些屬性。這些所有屬性都由 `fantasy-land/` 作為前綴。例如：
+
+```js
+//  MyType#fantasy-land/map :: MyType a ~> (a -> b) -> MyType b
+MyType.prototype['fantasy-land/map'] = ...
+```
+
+此外，在本份文件沒有使用前綴名稱。
+
+為了方便你可以使用 `fantasy-land` 的 package：
+
+```js
+var fl = require('fantasy-land')
+
+// ...
+
+MyType.prototype[fl.map] = ...
+
+// ...
+
+var foo = bar[fl.map](x => x + 1)
+```
+
+## Type 代表
+
+某些行為是從一個 type 成員的角度定義的。其他行為不需要一個成員。因此，某些代數要求一個 type 提供一個 value 層級的代表（具有一定的屬性）。例如，可以提供 `Id` 作為其 type 代表：`Id :: TypeRep Identity`。
+
+如果一個 type 提供了一個 type 代表，該 type 的每個成員必須有一個 `constructor` 屬性，該屬性是對 type 代表的引用。
+
+## 代數
+
+### Setoid
+
+1. `a.equals(a) === true`（反身性）
+2. `a.equals(b) === b.equals(a)`（對稱性）
+3. 如果 `a.equals(b)` 而且 `b.equals(c)`，因此 `a.equals(c)`（傳遞性）
+
+#### `equals` 方法
+
+```haskell
+equals :: Setoid a => a ~> a -> Boolean
+```
+
+具有 Setoid 的值必須提供一個 `equals` 方法。`equals` 方法接受一個參數：
+
+```
+a.equals(b)
+```
+
+1. `b` 必須是相同於 Setoid 的值。
+    i. 如果 `b` 不相同於 Setoid，`equals` 的行為是沒有被指定的（推薦回傳 `false`）。
+2. `equals` 必須回傳一個布林值（`true` 或 `false`）。
+
+### Ord
+
+實作 Ord 規範的該值也必須實作 [Setoid](https://github.com/fantasyland/fantasy-land#setoid) 規範。
+
+1. `a.lte(b)` 或 `b.lte(a)` (完整性)
+2. 如果 `a.lte(b)` 而且 `b.lte(a)`，因此 `a.equals(b)` (反對稱性)
+3. 如果 `a.lte(b)` 而且 `b.lte(c)`，因此 `a.lte(c)`（傳遞性）
+
+#### `lte` 方法
+
+```haskell
+lte :: Ord a => a ~> a -> Boolean
+```
+
+具有 Ord 的值必須提供一個 `lte` 方法。`lte` 方法接受一個參數：
+
+```
+a.lte(b)
+```
+
+1. `b` 必須是相同於 Ord 的值。
+    i. 如果 `b` 不相同於 Ord，`lte` 的行為是沒有被指定的（推薦回傳 `false`）。
+2. `lte` 必須回傳一個布林值（`true` 或 `false`）。
