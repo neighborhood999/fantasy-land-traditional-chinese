@@ -117,7 +117,7 @@ a.equals(b)
 ```
 
 1. `b` 必須是相同於 Setoid 的值。
-    i. 如果 `b` 不相同於 Setoid，`equals` 的行為是沒有被指定的（推薦回傳 `false`）。
+    - i. 如果 `b` 不相同於 Setoid，`equals` 的行為是沒有被指定的（推薦回傳 `false`）。
 2. `equals` 必須回傳一個布林值（`true` 或 `false`）。
 
 ### Ord
