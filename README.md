@@ -143,3 +143,137 @@ a.lte(b)
 1. `b` 必須是相同於 Ord 的值。
     i. 如果 `b` 不相同於 Ord，`lte` 的行為是沒有被指定的（推薦回傳 `false`）。
 2. `lte` 必須回傳一個布林值（`true` 或 `false`）。
+
+### Semigroupid
+
+`a.compose(b).compose(c) === a.compose(b.compose(c))`（關聯性）
+
+#### `compose` 方法
+
+```haskell
+compose :: Semigroupoid c => c i j ~> c j k -> c i k
+```
+
+具有 Semigroupoid 的值必須提供一個 `compose` 方法。`compose` 方法接受一個參數：
+
+```
+a.compose(b)
+```
+
+1. `b` 必須是相同的 Semigroupoid 的值。
+    i. 如果 `b` 不是相同的 Semigroupoid，`compose` 的行為是沒有被指定的。
+2. `compose` 必須回傳一個相同的 Semigroupoid 的值。
+
+### Category
+
+實作 Category 規範的該值也必須實作 [Semigroupoid](https://github.com/fantasyland/fantasy-land#semigroupoid) 規範。
+
+1. `a.compose(C.id())` 相等於 `a`（Right Identity）
+2. `C.id().compose(a)` 相等於 `a`（Left Identity）
+
+#### `id` 方法
+
+```haskell
+id :: Category c => () -> c a a
+```
+
+具有 Category 的值必須在它的 [type 代表](https://github.com/fantasyland/fantasy-land#type-representatives)上提供一個 `id` 方法：
+
+```
+C.id()
+```
+
+給定一個 `c` 值，可以通過 `constructor` 屬性拜訪其 type 代表：
+
+```
+c.constructor.id()
+```
+
+1. `id` 必須回傳一個相同的 Category 的值。
+
+### Semigroup
+
+1. `a.concat(b).concat(c)` 相等於 `a.concat(b.concat(c))`（關聯性）
+
+#### `contact` 方法
+
+```haskell
+concat :: Semigroup a => a ~> a -> a
+```
+
+具有 Semigroup 的值必須提供一個 `contact` 方法。`contact` 方法接受一個參數：
+
+```
+s.concat(b)
+```
+
+1. `b` 必須是相同的 Semigroup 的值。
+    i. 如果 `b` 不是相同的 Semigroup，`contact` 的行為是沒有被指定的。
+2. `contact` 必須回傳一個相同的 Semigroup 的值。
+
+### Monoid
+
+實作 Monoid 規範的該值也必須實作 [Semigroup](https://github.com/fantasyland/fantasy-land#semigroup) 規範。
+
+#### `empty` 方法
+
+```haskell
+empty :: Monoid m => () -> m
+```
+
+具有 Monoid 的值必須在它的 [type 代表](https://github.com/fantasyland/fantasy-land#type-representatives)上提供一個 `empty` 方法：
+
+```
+M.empty()
+```
+
+給定一個 `m` 值，可以通過 `constructor` 屬性拜訪其 type 代表：
+
+```
+m.constructor.empty()
+```
+
+1. `empty` 必須回傳一個相同的 Monoid 的值。
+
+### Group
+
+實作 Group 規範的該值也必須實作 [Monoid](https://github.com/fantasyland/fantasy-land#monoid) 規範。
+
+1. `g.concat(g.invert())` 相等於 `g.constructor.empty()`（Right Inverse）
+2. `g.invert().concat(g)` 相等於 `g.constructor.empty()`（Left Inverse）
+
+#### `invert` 方法
+
+```haskell
+invert :: Group g => g ~> () -> g
+```
+
+具有 Group 的值必須提供一個 `invert` 方法。`invert` 方法不接受參數：
+
+```
+g.invert()
+```
+
+1. `invert` 必須回傳相同的 Group 的值。
+
+### Functor
+
+1. `u.map(a => a)` 相等於 `u`（identity）
+2. `u.map(x => f(g(x)))` 相等於 `u.map(g).map(f)`（組合性）
+
+#### `map` 方法
+
+```haskell
+map :: Functor f => f a ~> (a -> b) -> f b
+```
+具有 Functor 的值必須提供一個 `map` 方法。`map` 方法接受一個參數：
+
+```
+u.map(f)
+```
+
+1. `f` 必須是一個函式，
+    - i. 如果 `f` 不是一個函式，`map` 的行為是沒有被指定的。
+    - ii. `f` 可以回傳任何值。
+    - iii. No parts of f's return value should be checked.
+2. `map` 必須回傳一個相同的 Functor 的值。
