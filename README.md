@@ -277,3 +277,81 @@ u.map(f)
     - ii. `f` 可以回傳任何值。
     - iii. No parts of f's return value should be checked.
 2. `map` 必須回傳一個相同的 Functor 的值。
+
+### Contravariant
+
+1. `u.contramap(a => a)` 相等於 `u`（identity）
+2. `u.contramap(x => f(g(x)))` 相等於 `u.contramap(f).contramap(g)`（composition）
+
+#### `contramap` 方法
+
+```haskell
+contramap :: Contravariant f => f a ~> (b -> a) -> f b
+```
+
+具有 Contravariant 的值必須提供一個 `contramap` 方法。`contrampa` 方法接受一個參數：
+
+```
+u.contramap(f)
+```
+
+1. `f` 必須是一個函式，
+    - i. 如果 `f` 不是一個函式，`contramap` 的行為是沒有被指定的。
+    - ii. `f` 可以回傳任何值。
+    - iii. No parts of f's return value should be checked.
+2. `contramap` 必須回傳一個相同的 Contravariant 的值。
+
+### Apply
+
+實作 Apply 規範的該值也必須實作 [Functor](https://github.com/fantasyland/fantasy-land#functor) 規範。
+
+1. `v.ap(u.ap(a.map(f => g => x => f(g(x)))))` 相等於 `v.ap(u).ap(a)`（composition）
+
+#### `ap` 方法
+
+```haskell
+ap :: Apply f => f a ~> f (a -> b) -> f b
+```
+
+具有 Apply 的值必須提供一個 `ap` 方法。`ap` 方法接受一個參數：
+
+```
+a.ap(b)
+```
+
+1. `b` 必須是一個 Apply 函式，
+    - i. 如果 `b` 不是代表一個函式，`ap` 的行為是沒有被指定的。
+    - ii. `b` 必須相同於 a 是 Apply。
+2. `a` 必須是任何值的一個 Apply。
+3. `ap` 必須將 Apply `b` 中的函式應用於 Apply `a` 中的值。
+    - i. 該函式沒有回傳值的部分需要被檢查
+4. 透過 `ap` 被回傳的 Apply 必須與 `a` 和 `b` 相同。
+
+### Applicative
+
+實作 Applicative 規範的該值也必須實作 [Apply](https://github.com/fantasyland/fantasy-land#apply) 規範。
+
+1. `v.ap(A.of(x => x))` 相等於 `v`（identity）
+2. `A.of(x).ap(A.of(f))` 相等於 `A.of(f(x))`（homomorphism）
+3. `A.of(y).ap(u)` 相等於 `u.ap(A.of(f => f(y)))`（interchange）
+
+#### `of` 方法
+
+```haskell=
+of :: Applicative f => a -> f a
+```
+
+具有 Applicative 的值必須在它的 [type representative](https://github.com/fantasyland/fantasy-land#type-representatives) 上提供一個 `of` 方法。`of` 方法接受一個參數：
+
+```
+F.of(a)
+```
+
+給定一個 `f` 值，透過 `constructor` 屬性訪問它的 type representative：
+
+```
+f.constructor.of(a)
+```
+
+1. `of` 必須提供相同的 Applicative 值
+    - i. 不需要檢查任何部分
