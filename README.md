@@ -337,7 +337,7 @@ a.ap(b)
 
 #### `of` 方法
 
-```haskell=
+```haskell
 of :: Applicative f => a -> f a
 ```
 
@@ -355,3 +355,57 @@ f.constructor.of(a)
 
 1. `of` 必須提供相同的 Applicative 值
     - i. 不需要檢查任何部分
+    
+### Alt
+
+實作 Alt 規範的該值也必須實作 [Functor](https://github.com/fantasyland/fantasy-land#functor) 規範。
+
+1. `a.alt(b).alt(c)` 相等於 `a.alt(b.alt(c))`（associativity）
+2. `a.alt(b).map(f)` 相等於 `a.map(f).alt(b.map(f))`（distributivity）
+
+#### `alt` 方法
+
+```haskell
+alt :: Alt f => f a ~> f a -> f a
+```
+
+具有 Alt 的值必須提供一個 `alt` 方法。`alt` 方法接受一個參數：
+
+```
+a.alt(b)
+```
+
+1. `b` 必須是相同 Alt 的值。
+   - i. 如果 `b` 不相同於 Alt，`alt` 的行為是沒有被指定的。
+   - ii. `a` 和 `b` 可以包涵任何相同 type 的值。
+   - iii. No parts of `a`'s and `b`'s containing value should be checked.
+
+2. `alt` 必須回傳一個相同 Alt 的值。
+
+### Plus
+
+實作 Plus 規範的該值也必須實作 [Alt](https://github.com/fantasyland/fantasy-land#alt) 規範。
+
+1. `x.alt(A.zero())` 相等於 `x`（right identity）
+2. `A.zero().alt(x)` 相等於 `x`（left identity）
+3. `A.zero().map(f)` 相等於 `A.zero()`（annihilation）
+
+#### `zero` 方法
+
+```haskell
+zero :: Plus f => () -> f a
+```
+
+具有 Plus 的值必須在它的 [type representative](https://github.com/fantasyland/fantasy-land#type-representatives) 上提供一個 `zero` 函式：
+
+```
+A.zero()
+```
+
+給定一個 `x` 值，可以通過 `constructor` 屬性拜訪其 type 代表：
+
+```
+x.constructor.zero()
+```
+
+1. `zero` 必須回傳一個相同 Plus 的值。
